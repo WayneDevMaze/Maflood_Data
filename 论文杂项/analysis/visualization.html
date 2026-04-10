@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模糊测试工具性能比较</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .chart-container {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #555;
+            margin-bottom: 10px;
+        }
+        canvas {
+            max-height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>模糊测试工具性能比较</h1>
+        
+        <!-- LAVA-M 项目 -->
+        <div class="chart-container">
+            <h2>LAVA-M 项目</h2>
+            <h3>执行次数 (百万)</h3>
+            <canvas id="lavaExecsChart"></canvas>
+        </div>
+        
+        <div class="chart-container">
+            <h3>执行速度 (次/秒)</h3>
+            <canvas id="lavaSpeedChart"></canvas>
+        </div>
+        
+        <div class="chart-container">
+            <h3>路径数</h3>
+            <canvas id="lavaPathsChart"></canvas>
+        </div>
+        
+        <!-- ffjpeg 项目 -->
+        <div class="chart-container">
+            <h2>ffjpeg 项目</h2>
+            <h3>执行次数 (百万)</h3>
+            <canvas id="ffjpegExecsChart"></canvas>
+        </div>
+        
+        <div class="chart-container">
+            <h3>崩溃数</h3>
+            <canvas id="ffjpegCrashesChart"></canvas>
+        </div>
+        
+        <div class="chart-container">
+            <h3>路径数</h3>
+            <canvas id="ffjpegPathsChart"></canvas>
+        </div>
+        
+        <!-- libpng 项目 -->
+        <div class="chart-container">
+            <h2>libpng 项目</h2>
+            <h3>执行次数 (百万)</h3>
+            <canvas id="libpngExecsChart"></canvas>
+        </div>
+        
+        <div class="chart-container">
+            <h3>覆盖率 (%)</h3>
+            <canvas id="libpngCvgChart"></canvas>
+        </div>
+        
+        <div class="chart-container">
+            <h3>崩溃数</h3>
+            <canvas id="libpngCrashesChart"></canvas>
+        </div>
+    </div>
+    
+    <script>
+        // 测试数据
+        const testData = {
+            "LAVA-M": {
+                "AFL": {
+                    "1_instance": {"execs_done": 72308168, "execs_per_sec": 2462.27, "paths_total": 394},
+                    "4_instances": {"execs_done": 28261333, "execs_per_sec": 115.13, "paths_total": 334},
+                    "8_instances": {"execs_done": 11927596, "execs_per_sec": 47.57, "paths_total": 256}
+                },
+                "AFLFast": {
+                    "1_instance": {"execs_done": 55481912, "execs_per_sec": 1636.94, "paths_total": 361}
+                }
+            },
+            "ffjpeg": {
+                "AFL": {
+                    "BMP-e": {"execs_done": 21367369, "unique_crashes": 6, "paths_total": 370},
+                    "JPG-d": {"execs_done": 46661919, "unique_crashes": 89, "paths_total": 533}
+                },
+                "MAflood": {
+                    "BMP-e": {"execs_done": 28444272, "unique_crashes": 7, "paths_total": 363},
+                    "JPG-d": {"execs_done": 20267546, "unique_crashes": 61, "paths_total": 555}
+                }
+            },
+            "libpng": {
+                "AFL": {"execs_done": 14474786, "bitmap_cvg": 8.55, "unique_crashes": 21, "paths_total": 2064},
+                "AFLFast": {"execs_done": 42436433, "bitmap_cvg": 5.23, "unique_crashes": 27, "paths_total": 1849},
+                "MAflood": {"execs_done": 3169, "bitmap_cvg": 4.47, "unique_crashes": 0, "paths_total": 132}
+            }
+        };
+        
+        // LAVA-M 执行次数图表
+        const lavaExecsCtx = document.getElementById('lavaExecsChart').getContext('2d');
+        new Chart(lavaExecsCtx, {
+            type: 'bar',
+            data: {
+                labels: ['AFL 1实例', 'AFL 4实例', 'AFL 8实例', 'AFLFast 1实例'],
+                datasets: [{
+                    label: '执行次数 (百万)',
+                    data: [
+                        testData["LAVA-M"]["AFL"]["1_instance"].execs_done / 1000000,
+                        testData["LAVA-M"]["AFL"]["4_instances"].execs_done / 1000000,
+                        testData["LAVA-M"]["AFL"]["8_instances"].execs_done / 1000000,
+                        testData["LAVA-M"]["AFLFast"]["1_instance"].execs_done / 1000000
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(255, 159, 64, 0.6)',
+                        'rgba(255, 205, 86, 0.6)',
+                        'rgba(75, 192, 192, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgb(255, 99, 132)',
+                        'rgb(255, 159, 64)',
+                        'rgb(255, 205, 86)',
+                        'rgb(75, 192, 192)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // LAVA-M 执行速度图表
+        const lavaSpeedCtx = document.getElementById('lavaSpeedChart').getContext('2d');
+        new Chart(lavaSpeedCtx, {
+            type: 'bar',
+            data: {
+                labels: ['AFL 1实例', 'AFL 4实例', 'AFL 8实例', 'AFLFast 1实例'],
+                datasets: [{
+                    label: '执行速度 (次/秒)',
+                    data: [
+                        testData["LAVA-M"]["AFL"]["1_instance"].execs_per_sec,
+                        testData["LAVA-M"]["AFL"]["4_instances"].execs_per_sec,
+                        testData["LAVA-M"]["AFL"]["8_instances"].execs_per_sec,
+                        testData["LAVA-M"]["AFLFast"]["1_instance"].execs_per_sec
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(255, 159, 64, 0.6)',
+                        'rgba(255, 205, 86, 0.6)',
+                        'rgba(75, 192, 192, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgb(255, 99, 132)',
+                        'rgb(255, 159, 64)',
+                        'rgb(255, 205, 86)',
+                        'rgb(75, 192, 192)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // LAVA-M 路径数图表
+        const lavaPathsCtx = document.getElementById('lavaPathsChart').getContext('2d');
+        new Chart(lavaPathsCtx, {
+            type: 'bar',
+            data: {
+                labels: ['AFL 1实例', 'AFL 4实例', 'AFL 8实例', 'AFLFast 1实例'],
+                datasets: [{
+                    label: '路径数',
+                    data: [
+                        testData["LAVA-M"]["AFL"]["1_instance"].paths_total,
+                        testData["LAVA-M"]["AFL"]["4_instances"].paths_total,
+                        testData["LAVA-M"]["AFL"]["8_instances"].paths_total,
+                        testData["LAVA-M"]["AFLFast"]["1_instance"].paths_total
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(255, 159, 64, 0.6)',
+                        'rgba(255, 205, 86, 0.6)',
+                        'rgba(75, 192, 192, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgb(255, 99, 132)',
+                        'rgb(255, 159, 64)',
+                        'rgb(255, 205, 86)',
+                        'rgb(75, 192, 192)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // ffjpeg 执行次数图表
+        const ffjpegExecsCtx = document.getElementById('ffjpegExecsChart').getContext('2d');
+        new Chart(ffjpegExecsCtx, {
+            type: 'bar',
+            data: {
+                labels: ['AFL BMP-e', 'AFL JPG-d', 'MAflood BMP-e', 'MAflood JPG-d'],
+                datasets: [{
+                    label: '执行次数 (百万)',
+                    data: [
+                        testData["ffjpeg"]["AFL"]["BMP-e"].execs_done / 1000000,
+                        testData["ffjpeg"]["AFL"]["JPG-d"].execs_done / 1000000,
+                        testData["ffjpeg"]["MAflood"]["BMP-e"].execs_done / 1000000,
+                        testData["ffjpeg"]["MAflood"]["JPG-d"].execs_done / 1000000
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(255, 159, 64, 0.6)',
+                        'rgba(75, 192, 192, 0.6)',
+                        'rgba(54, 162, 235, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgb(255, 99, 132)',
+                        'rgb(255, 159, 64)',
+                        'rgb(75, 192, 192)',
+                        'rgb(54, 162, 235)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // ffjpeg 崩溃数图表
+        const ffjpegCrashesCtx = document.getElementById('ffjpegCrashesChart').getContext('2d');
+        new Chart(ffjpegCrashesCtx, {
+            type: 'bar',
+            data: {
+                labels: ['AFL BMP-e', 'AFL JPG-d', 'MAflood BMP-e', 'MAflood JPG-d'],
+                datasets: [{
+                    label: '崩溃数',
+                    data: [
+                        testData["ffjpeg"]["AFL"]["BMP-e"].unique_crashes,
+                        testData["ffjpeg"]["AFL"]["JPG-d"].unique_crashes,
+                        testData["ffjpeg"]["MAflood"]["BMP-e"].unique_crashes,
+                        testData["ffjpeg"]["MAflood"]["JPG-d"].unique_crashes
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(255, 159, 64, 0.6)',
+                        'rgba(75, 192, 192, 0.6)',
+                        'rgba(54, 162, 235, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgb(255, 99, 132)',
+                        'rgb(255, 159, 64)',
+                        'rgb(75, 192, 192)',
+                        'rgb(54, 162, 235)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // ffjpeg 路径数图表
+        const ffjpegPathsCtx = document.getElementById('ffjpegPathsChart').getContext('2d');
+        new Chart(ffjpegPathsCtx, {
+            type: 'bar',
+            data: {
+                labels: ['AFL BMP-e', 'AFL JPG-d', 'MAflood BMP-e', 'MAflood JPG-d'],
+                datasets: [{
+                    label: '路径数',
+                    data: [
+                        testData["ffjpeg"]["AFL"]["BMP-e"].paths_total,
+                        testData["ffjpeg"]["AFL"]["JPG-d"].paths_total,
+                        testData["ffjpeg"]["MAflood"]["BMP-e"].paths_total,
+                        testData["ffjpeg"]["MAflood"]["JPG-d"].paths_total
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(255, 159, 64, 0.6)',
+                        'rgba(75, 192, 192, 0.6)',
+                        'rgba(54, 162, 235, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgb(255, 99, 132)',
+                        'rgb(255, 159, 64)',
+                        'rgb(75, 192, 192)',
+                        'rgb(54, 162, 235)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // libpng 执行次数图表
+        const libpngExecsCtx = document.getElementById('libpngExecsChart').getContext('2d');
+        new Chart(libpngExecsCtx, {
+            type: 'bar',
+            data: {
+                labels: ['AFL', 'AFLFast', 'MAflood'],
+                datasets: [{
+                    label: '执行次数 (百万)',
+                    data: [
+                        testData["libpng"]["AFL"].execs_done / 1000000,
+                        testData["libpng"]["AFLFast"].execs_done / 1000000,
+                        testData["libpng"]["MAflood"].execs_done / 1000000
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(255, 159, 64, 0.6)',
+                        'rgba(75, 192, 192, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgb(255, 99, 132)',
+                        'rgb(255, 159, 64)',
+                        'rgb(75, 192, 192)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // libpng 覆盖率图表
+        const libpngCvgCtx = document.getElementById('libpngCvgChart').getContext('2d');
+        new Chart(libpngCvgCtx, {
+            type: 'bar',
+            data: {
+                labels: ['AFL', 'AFLFast', 'MAflood'],
+                datasets: [{
+                    label: '覆盖率 (%)',
+                    data: [
+                        testData["libpng"]["AFL"].bitmap_cvg,
+                        testData["libpng"]["AFLFast"].bitmap_cvg,
+                        testData["libpng"]["MAflood"].bitmap_cvg
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(255, 159, 64, 0.6)',
+                        'rgba(75, 192, 192, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgb(255, 99, 132)',
+                        'rgb(255, 159, 64)',
+                        'rgb(75, 192, 192)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+        // libpng 崩溃数图表
+        const libpngCrashesCtx = document.getElementById('libpngCrashesChart').getContext('2d');
+        new Chart(libpngCrashesCtx, {
+            type: 'bar',
+            data: {
+                labels: ['AFL', 'AFLFast', 'MAflood'],
+                datasets: [{
+                    label: '崩溃数',
+                    data: [
+                        testData["libpng"]["AFL"].unique_crashes,
+                        testData["libpng"]["AFLFast"].unique_crashes,
+                        testData["libpng"]["MAflood"].unique_crashes
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(255, 159, 64, 0.6)',
+                        'rgba(75, 192, 192, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgb(255, 99, 132)',
+                        'rgb(255, 159, 64)',
+                        'rgb(75, 192, 192)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

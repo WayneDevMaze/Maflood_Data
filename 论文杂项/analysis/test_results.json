@@ -1,0 +1,93 @@
+{
+  "LAVA-M": {
+    "AFL": {
+      "1_instance": {
+        "execs_done": 72308168,
+        "execs_per_sec": 2462.27,
+        "bitmap_cvg": 0.54,
+        "unique_crashes": 0,
+        "paths_total": 394
+      },
+      "4_instances": {
+        "execs_done": 28261333,
+        "execs_per_sec": 115.13,
+        "bitmap_cvg": 0.54,
+        "unique_crashes": 0,
+        "paths_total": 334
+      },
+      "8_instances": {
+        "execs_done": 11927596,
+        "execs_per_sec": 47.57,
+        "bitmap_cvg": 0.54,
+        "unique_crashes": 0,
+        "paths_total": 256
+      }
+    },
+    "AFLFast": {
+      "1_instance": {
+        "execs_done": 55481912,
+        "execs_per_sec": 1636.94,
+        "bitmap_cvg": 0.54,
+        "unique_crashes": 0,
+        "paths_total": 361
+      }
+    }
+  },
+  "ffjpeg": {
+    "AFL": {
+      "BMP-e": {
+        "execs_done": 21367369,
+        "execs_per_sec": 157.52,
+        "bitmap_cvg": 0.67,
+        "unique_crashes": 6,
+        "paths_total": 370
+      },
+      "JPG-d": {
+        "execs_done": 46661919,
+        "execs_per_sec": 714.93,
+        "bitmap_cvg": 0.69,
+        "unique_crashes": 89,
+        "paths_total": 533
+      }
+    },
+    "MAflood": {
+      "BMP-e": {
+        "execs_done": 28444272,
+        "execs_per_sec": 201.34,
+        "bitmap_cvg": 0.68,
+        "unique_crashes": 7,
+        "paths_total": 363
+      },
+      "JPG-d": {
+        "execs_done": 20267546,
+        "execs_per_sec": 135.82,
+        "bitmap_cvg": 0.69,
+        "unique_crashes": 61,
+        "paths_total": 555
+      }
+    }
+  },
+  "libpng": {
+    "AFL": {
+      "execs_done": 14474786,
+      "execs_per_sec": 61.14,
+      "bitmap_cvg": 8.55,
+      "unique_crashes": 21,
+      "paths_total": 2064
+    },
+    "AFLFast": {
+      "execs_done": 42436433,
+      "execs_per_sec": 529.10,
+      "bitmap_cvg": 5.23,
+      "unique_crashes": 27,
+      "paths_total": 1849
+    },
+    "MAflood": {
+      "execs_done": 3169,
+      "execs_per_sec": 317.46,
+      "bitmap_cvg": 4.47,
+      "unique_crashes": 0,
+      "paths_total": 132
+    }
+  }
+}

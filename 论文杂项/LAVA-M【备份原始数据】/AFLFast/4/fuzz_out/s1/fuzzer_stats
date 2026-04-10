@@ -1,0 +1,27 @@
+start_time        : 1775309270
+last_update       : 1775395671
+fuzzer_pid        : 43521
+cycles_done       : 271
+execs_done        : 23641489
+execs_per_sec     : 1074.49
+paths_total       : 400
+paths_favored     : 8
+paths_found       : 309
+paths_imported    : 90
+max_depth         : 12
+cur_path          : 91
+pending_favs      : 0
+pending_total     : 0
+variable_paths    : 0
+stability         : 100.00%
+bitmap_cvg        : 0.54%
+unique_crashes    : 0
+unique_hangs      : 0
+last_path         : 1775395625
+last_crash        : 0
+last_hang         : 0
+execs_since_crash : 23641489
+exec_timeout      : 20
+afl_banner        : s1
+afl_version       : 2.51b
+command_line      : afl-fuzz -S s1 -p fast -i fuzz_in/ -o fuzz_out/ -m none -- ./base64 -d @@
